@@ -189,5 +189,5 @@ def main():
     print("🖤 Dark Nomer Bot ishga tushdi")
     app.run_polling()
 
-if name == "main":
+if __name__ == "__main__":
     main()
