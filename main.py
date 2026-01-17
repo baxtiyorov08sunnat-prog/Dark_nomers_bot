@@ -15,7 +15,7 @@ from telegram.ext import (
 )
 
 # ================= CONFIG =================
-TOKEN = "BOT_TOKEN_BUYERGA_QO‘YILADI"
+TOKEN = "8305324899:AAHGndr3MMh8-7snEYIo_q_MoB3M20UaBEE"
 ADMIN_ID = 7696027042
 
 logging.basicConfig(level=logging.INFO)
