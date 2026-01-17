@@ -14,6 +14,7 @@ from telegram.ext import (
     filters
 )
 
+# ================= CONFIG =================
 TOKEN = "BOT_TOKEN_BUYERGA_QO‘YILADI"
 ADMIN_ID = 7696027042
 
@@ -39,18 +40,20 @@ NUMBERS = {
     "Uzbekistan": {"price": 15000, "numbers": ["+998901234567"]}
 }
 
-CARD_INFO = """
-💳 Karta: 8600 ** ** 1234
-👤 Egasi: Baxtiyorov B.
-📞 Tel: +99890XXXXXXX
-"""
+CARD_INFO = (
+    "💳 Karta: 8600 1234\n"
+    "👤 Egasi: Baxtiyorov B.\n"
+    "📞 Tel: +99890XXXXXXX"
+)
 
 # ================= START =================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
-    sql.execute("INSERT OR IGNORE INTO users(user_id, balance, step) VALUES(?,?,?)",
-                (user_id, 0, "menu"))
+    sql.execute(
+        "INSERT OR IGNORE INTO users(user_id, balance, step) VALUES(?,?,?)",
+        (user_id, 0, "menu")
+    )
     db.commit()
 
     keyboard = [
@@ -90,14 +93,12 @@ async def select_country(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     context.user_data["country"] = country
 
-    keyboard = [
-        [InlineKeyboardButton("➡️ Davom etish", callback_data="confirm_buy")],
-        [InlineKeyboardButton("⬅️ Orqaga", callback_data="buy")]
-    ]
-
     await q.edit_message_text(
-        f"📍 {country}\n💰 Narx: {price} so‘m",
-        reply_markup=InlineKeyboardMarkup(keyboard)
+        f"📍 {country}\n💰 Narx: {price} so‘m\n\n💳 To‘lov qilish uchun pastdagi tugmani bosing",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("💳 To‘lov qilish", callback_data="pay")],
+            [InlineKeyboardButton("⬅️ Orqaga", callback_data="buy")]
+        ])
     )
 
 # ================= PAYMENT =================
@@ -113,13 +114,23 @@ async def payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_amount(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
+
+    sql.execute("SELECT step FROM users WHERE user_id=?", (user_id,))
+    step = sql.fetchone()[0]
+
+    if step != "wait_amount":
+        return
+
+    if not update.message.text.isdigit():
+        await update.message.reply_text("❌ Faqat raqam kiriting")
+        return
+
     amount = update.message.text
+    context.user_data["amount"] = amount
 
     sql.execute("UPDATE users SET step=? WHERE user_id=?",
                 ("wait_check", user_id))
     db.commit()
-
-    context.user_data["amount"] = amount
 
     await update.message.reply_text(
         CARD_INFO + "\n\n📸 Chekni yuboring"
@@ -127,11 +138,17 @@ async def get_amount(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
+
+    sql.execute("SELECT step FROM users WHERE user_id=?", (user.id,))
+    step = sql.fetchone()[0]
+    if step != "wait_check":
+        return
+
     amount = context.user_data.get("amount")
 
     await context.bot.send_message(
         ADMIN_ID,
-        f"🧾 Yangi to‘lov\n👤 {user.id}\n💰 {amount}",
+        f"🧾 Yangi to‘lov\n👤 ID: {user.id}\n💰 Summa: {amount}",
         reply_markup=InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("✅ Tasdiqlash", callback_data=f"ok_{user.id}_{amount}"),
@@ -139,6 +156,11 @@ async def get_check(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ]
         ])
     )
+
+    sql.execute("UPDATE users SET step=? WHERE user_id=?",
+                ("menu", user.id))
+    db.commit()
+
     await update.message.reply_text("⏳ Kutilmoqda. Admin tekshiryapti.")
 
 # ================= ADMIN =================
@@ -183,7 +205,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(router))
-    app.add_handler(MessageHandler(filters.TEXT, get_amount))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_amount))
     app.add_handler(MessageHandler(filters.PHOTO, get_check))
 
     print("🖤 Dark Nomer Bot ishga tushdi")
