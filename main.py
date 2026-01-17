@@ -11,7 +11,7 @@ from telegram.ext import (
 )
 
 # ========= CONFIG =========
-TOKEN = "8305324899:AAHGndr3MMh8-7snEYIo_q_MoB3M20UaBEE"
+TOKEN = "BOT_TOKENINGNI_BU_YERGA_QO‘Y"
 ADMIN_ID = 7696027042
 LOG_CHANNEL_ID = -1001234567890  # agar log kanal bo‘lsa, yo‘q bo‘lsa o‘chir
 
@@ -37,9 +37,9 @@ NUMBERS = {
 }
 
 CARD_INFO = (
-    "💳 Karta: 9860 1666 5369 5071\n"
-    "👤 Egasi: RIZAYEV JAVOXIR.\n"
-    "📞 Tel: +998882883031"
+    "💳 Karta: 8600 1234 5678 9012\n"
+    "👤 Egasi: Baxtiyorov B.\n"
+    "📞 Tel: +99890XXXXXXX"
 )
 
 # ========= START =========
@@ -196,4 +196,5 @@ def main():
     print("🖤 Dark Nomer Bot ishga tushdi")
     app.run_polling(drop_pending_updates=True)
 
+if __name__ == "__main__":
     main()
