@@ -272,4 +272,5 @@ async def get_code(call: types.CallbackQuery):
     set_number_finished(num_id)
 
 # ------------------ RUN ------------------
+
 executor.start_polling(dp, skip_updates=True)
