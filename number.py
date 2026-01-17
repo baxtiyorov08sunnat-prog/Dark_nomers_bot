@@ -1,26 +1,37 @@
 import json
-import os
+import random
 
-FILE = "number.json"
+JSON_FILE = "number.json"
+
 
 def load_numbers():
-    if not os.path.exists(FILE):
-        return {}
-    with open(FILE, "r", encoding="utf-8") as f:
+    """JSON faylni o‘qish"""
+    with open(JSON_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def save_numbers(data):
-    with open(FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+def get_countries():
+    """Mavjud country lar ro‘yxati"""
+    data = load_numbers()
+    return list(data.keys())
 
 
-def take_number(country: str):
+def get_price(country):
+    """Country bo‘yicha narx"""
+    data = load_numbers()
+    return data[country]["price"]
+
+
+def get_random_number(country):
+    """
+    Country bo‘yicha bitta nomer berish
+    Agar nomer qolmagan bo‘lsa -> None
+    """
     data = load_numbers()
 
-    if country not in data or len(data[country]) == 0:
+    numbers = data[country]["numbers"]
+    if not numbers:
         return None
 
-    number = data[country].pop(0)  # 1 ta nomerni oladi
-    save_numbers(data)
+    number = random.choice(numbers)
     return number
