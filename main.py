@@ -11,7 +11,7 @@ from telegram.ext import (
 )
 
 # ========= CONFIG =========
-TOKEN = "BOT_TOKENINGNI_BU_YERGA_QO‘Y"
+TOKEN = "8305324899:AAHGndr3MMh8-7snEYIo_q_MoB3M20UaBEE"
 ADMIN_ID = 7696027042
 LOG_CHANNEL_ID = -1001234567890  # agar log kanal bo‘lsa, yo‘q bo‘lsa o‘chir
 
